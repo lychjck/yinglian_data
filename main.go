@@ -2,13 +2,15 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+	"io/fs"
 	"log"
-	"flag"
+	"path/filepath"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func prepareDB()*sql.DB{
-	dbName := "couples"
+	dbName := "yinglian"
 	dbHost := "localhost"
 	dbUser := "root"
 	dbPass := ""
@@ -22,10 +24,19 @@ func prepareDB()*sql.DB{
 }
 
 func main() {
-	var filename string
-	flag.StringVar(&filename,"name","","name")
-	flag.Parse()
+
+
 	db:=prepareDB()
 	defer db.Close()
-	parse_yinglian(filename,db)
+	filepath.WalkDir("./txt", func(path string, d fs.DirEntry, err error) error {
+		if err!= nil {
+			return err
+		}
+		if !d.IsDir() {
+			parse_yinglian(path,db)
+			// fmt.Println(path)
+		}
+		return nil
+	})
+	
 }
